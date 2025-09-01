@@ -29,11 +29,19 @@
       <button class="toolbar-button"><i class="fas fa-text-width"></i></button>
     </div>
     <div class="row">
+      <!--  粗体    -->
       <button class="toolbar-button" :class="{active:format?.bold}" @mousedown.prevent @click="onBold">
         <i class="fas fa-bold"></i>
       </button>
-      <button class="toolbar-button" :class="{active:format?.italic}"><i class="fas fa-italic"></i></button>
-      <button class="toolbar-button" :class="{active:format?.underline}"><i class="fas fa-underline"></i></button>
+      <!--  斜体    -->
+      <button class="toolbar-button" :class="{active:format?.italic}" @mousedown.prevent @click="onItalic">
+        <i class="fas fa-italic"></i>
+      </button>
+      <!--  下划线   -->
+      <button class="toolbar-button" :class="{active:format?.underline}" @mousedown.prevent @click="onUnderline">
+        <i class="fas fa-underline"></i>
+      </button>
+
       <button class="toolbar-button"><i class="fas fa-strikethrough"></i></button>
       <button class="toolbar-button"><i class="fas fa-subscript"></i></button>
       <button class="toolbar-button"><i class="fas fa-superscript"></i></button>
@@ -87,9 +95,18 @@
       <button class="toolbar-button"><i class="fas fa-arrows-alt"></i></button>
     </div>
     <div class="row">
-      <button class="toolbar-button"><i class="fas fa-align-left"></i></button>
-      <button class="toolbar-button"><i class="fas fa-align-center"></i></button>
-      <button class="toolbar-button"><i class="fas fa-align-right"></i></button>
+      <!--  左对齐   -->
+      <button class="toolbar-button" @mousedown.prevent @click="onAlign('left')">
+        <i class="fas fa-align-left"></i>
+      </button>
+      <!--  居中    -->
+      <button class="toolbar-button" @mousedown.prevent @click="onAlign('center')">
+        <i class="fas fa-align-center"></i>
+      </button>
+      <!--  右对齐   -->
+      <button class="toolbar-button" @mousedown.prevent @click="onAlign('right')">
+        <i class="fas fa-align-right"></i>
+      </button>
       <button class="toolbar-button"><i class="fas fa-align-justify"></i></button>
       <button class="toolbar-button"><i class="fas fa-stream"></i></button>
       <button class="toolbar-button"><i class="fas fa-quote-right"></i></button>
@@ -138,9 +155,26 @@ const props = defineProps({
 
 const emit = defineEmits(['toggle-bold','undo','redo','set-font','set-size','toggle-italic','toggle-underline','toggle-strike','toggle-subscript','toggle-superscript','toggle-ordered','set-ordered-style','set-ordered-start','toggle-bullet','toggle-task','indent','outdent','align','insert-hr','toggle-blockquote','toggle-code-block','select-all','set-heading','open-find-replace'])
 
+// 粗体
 function onBold () {
   if (props.editorApi?.execCommand) props.editorApi.execCommand('bold')
   else emit('toggle-bold')
+}
+
+// 斜体
+function onItalic() {
+  props.editorApi?.execCommand?.('italic') || emit('toggle-italic')
+}
+
+// 下划线
+function onUnderline() {
+  props.editorApi?.execCommand?.('underline') || emit('toggle-underline')
+}
+
+// 对齐方式
+function onAlign(dir) {
+  const map = { left:'justifyLeft', center:'justifyCenter', right:'justifyRight' }
+  props.editorApi?.execCommand?.(map[dir] || 'justifyLeft') || emit('align', dir)
 }
 
 const font = ref(props.modelFont || 'inherit')
