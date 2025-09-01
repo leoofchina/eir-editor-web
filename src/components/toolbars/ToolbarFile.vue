@@ -3,11 +3,9 @@
   <div class="toolbar-group two-rows">
     <div class="row">
       <button class="toolbar-button" @click="newFile" title="新建">
-<!--      <button class="toolbar-button" @click="$emit('new-file')" title="新建">-->
         <i class="fas fa-file"></i>
       </button>
       <button class="toolbar-button" @click="openFile" title="開啟">
-<!--      <button class="toolbar-button" @click="$emit('open-file')" title="開啟">-->
         <i class="fas fa-folder-open"></i>
       </button>
       <button class="toolbar-button" @click="$emit('close-file')" title="關閉">
@@ -85,7 +83,7 @@
 
 <script setup>
   // ✅ 保留你原本的事件宣告（其他按鈕仍可 $emit）
-  import { useFileSave } from '@/composables/useFileSave'
+  import { useFile } from '@/composables/useFile'
 
   const props = defineProps({
     // 父層提供 editorApi：至少需有 getHTML()
@@ -100,7 +98,7 @@
   ])
 
   // const { saveFile } = useFileSave(props.editorApi)
-  const { saveFile, openFile, newFile } = useFileSave(props.editorApi)
+  const { saveFile, openFile, newFile } = useFile(props.editorApi)
 </script>
 
 <style scoped>

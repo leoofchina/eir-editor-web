@@ -1,7 +1,7 @@
 // 全繁中：新增「新建 / 開啟 / 未儲存提醒」
 import { ref } from 'vue'
 
-export function useFileSave(editorApi) {
+export function useFile(editorApi) {
     const fileHandle = ref(null)          // 當前檔柄（可為 null）
     const lastSavedJSON = ref(null)       // 上次已儲存的 JSON 快照
 
