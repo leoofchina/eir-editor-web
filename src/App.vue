@@ -1,18 +1,12 @@
 <template>
   <div class="editor-container">
     <MenuBar @select="onSelect"/>
-<!--    <ToolbarSwitcher-->
-<!--        :menu="menuKey"-->
-<!--        :format="formats"-->
-<!--        :modelFont="font" :modelSize="size" :modelHeading="heading"-->
-<!--        @new="newDocument" @open="openDocument" @save="saveDocument"-->
-<!--        @undo="undo" @redo="redo"-->
-<!--        @set-font="setFontFamily" @set-size="setFontSize"-->
-<!--        @toggle-bold="toggleBold" @toggle-italic="toggleItalic" @toggle-underline="toggleUnderline"-->
-<!--        @toggle-bullet="toggleBulletList" @toggle-ordered="toggleOrderedList"-->
-<!--        @insert-table="insertTable" @set-heading="setHeading"-->
-<!--    />-->
-    <ToolbarSwitcher :menu="menuKey" :editor-api="editorApi" />
+
+    <ToolbarSwitcher
+        :menu="menuKey"
+        :editor-api="editorApi"
+        @toggle-bold="() => editorApi.execCommand('bold')"
+    />
 
     <div class="main-content">
       <Editor ref="editorRef" />
@@ -71,76 +65,19 @@ function onSelect(m){
   menuKey.value = map[m] || 'file'
 }
 
-// const editorApi = {
-//   getJSON: () => editorRef.value?.getJSON?.() ?? null,  // ✅ 供工具欄取 JSON
-//   // 可保留 getHTML 作備援：getHTML: () => editorRef.value?.editor?.getHTML?.() ?? ''
-// }
 const editorApi = {
   getJSON: () => editorRef.value?.getJSON?.(),
   setJSON: (j) => editorRef.value?.setJSON?.(j),
   // 可選備援：
-  getHTML: () => editorRef.value?.editorElement?.innerHTML ?? ''
+  getHTML: () => editorRef.value?.editorElement?.innerHTML ?? '',
+  execCommand: (cmd, val=null) => editorRef.value?.execCommand?.(cmd, val),
+  focusEditor: () => editorRef.value?.editorElement?.focus?.()
 }
 
 // 編輯功能
-const newDocument = () => {
-  editorRef.value.innerHTML = '<p>開始撰寫您的病歷...</p>'
-  updateFormats()
-}
-const openDocument = () => {
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.accept = '.html,.txt'
-  input.onchange = (e) => {
-    const file = e.target.files[0]
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      editorRef.value.innerHTML = e.target.result
-      updateFormats()
-    }
-    reader.readAsText(file)
-  }
-  input.click()
-}
-const saveDocument = () => {
-  const content = editorRef.value.innerHTML
-  const blob = new Blob([content], { type: 'text/html' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `病歷記錄_${new Date().toISOString().slice(0, 10)}.html`
-  a.click()
-  URL.revokeObjectURL(url)
-}
+
 const undo = () => execCommand('undo')
 const redo = () => execCommand('redo')
-const toggleBold = () => execCommand('bold')
-const toggleItalic = () => execCommand('italic')
-const toggleUnderline = () => execCommand('underline')
-const toggleBulletList = () => execCommand('insertUnorderedList')
-const toggleOrderedList = () => execCommand('insertOrderedList')
-const insertTable = () => {
-  const tableHTML = `
-    <table>
-      <tr><th>項目</th><th>數值</th><th>參考範圍</th></tr>
-      <tr><td>血壓</td><td>120/80 mmHg</td><td>正常</td></tr>
-      <tr><td>心率</td><td>72次/分</td><td>正常</td></tr>
-    </table>`
-  insertHTML(tableHTML)
-  updateFormats()
-}
-const setFontFamily = (val) => {
-  editorRef.value.style.fontFamily = val
-  selectedFont.value = val
-}
-const setFontSize = (val) => {
-  editorRef.value.style.fontSize = val
-  selectedSize.value = val
-}
-const setHeading = (val) => {
-  execCommand('formatBlock', val ? `H${val}` : 'P')
-  selectedHeading.value = val
-}
 
 // 側邊欄
 const { sidebarMode, toggleSidebar, insertFormComponent } = useComponents()

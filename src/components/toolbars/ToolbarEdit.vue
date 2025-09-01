@@ -29,7 +29,9 @@
       <button class="toolbar-button"><i class="fas fa-text-width"></i></button>
     </div>
     <div class="row">
-      <button class="toolbar-button" :class="{active:format?.bold}"><i class="fas fa-bold"></i></button>
+      <button class="toolbar-button" :class="{active:format?.bold}" @mousedown.prevent @click="onBold">
+        <i class="fas fa-bold"></i>
+      </button>
       <button class="toolbar-button" :class="{active:format?.italic}"><i class="fas fa-italic"></i></button>
       <button class="toolbar-button" :class="{active:format?.underline}"><i class="fas fa-underline"></i></button>
       <button class="toolbar-button"><i class="fas fa-strikethrough"></i></button>
@@ -98,7 +100,6 @@
 
   <!-- 第四组：悬浮等宽，下排不占位 -->
   <div class="heading-box" @mouseleave="showMore=false">
-    <!--    <div class="heading-wrap">-->
     <div class="heading-wrap" :class="{ open: showMore }">
       <button class="heading-card" :class="{active: heading===''}" @click="setHeading('')"><div class="h-title">正文</div><div class="h-sub">Text</div></button>
       <button class="heading-card" :class="{active: heading==='1'}" @click="setHeading('1')"><div class="h-title">標題 1</div><div class="h-sub">H1</div></button>
@@ -129,14 +130,26 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-const props = defineProps({ format:Object, modelFont:String, modelSize:String, modelHeading:String })
+
+const props = defineProps({
+  editorApi: { type: Object, required: false },
+  format: { type: Object, required: false },
+})
+
+const emit = defineEmits(['toggle-bold','undo','redo','set-font','set-size','toggle-italic','toggle-underline','toggle-strike','toggle-subscript','toggle-superscript','toggle-ordered','set-ordered-style','set-ordered-start','toggle-bullet','toggle-task','indent','outdent','align','insert-hr','toggle-blockquote','toggle-code-block','select-all','set-heading','open-find-replace'])
+
+function onBold () {
+  if (props.editorApi?.execCommand) props.editorApi.execCommand('bold')
+  else emit('toggle-bold')
+}
+
 const font = ref(props.modelFont || 'inherit')
 const size = ref(props.modelSize || '16px')
 const heading = ref(props.modelHeading || '')
 
 // const heading = ref('')
 const showMore = ref(false)
-const emit = defineEmits(['set-heading'])
+// const emit = defineEmits(['set-heading'])
 
 const showOL = ref(false)
 const olStart = ref(1)
