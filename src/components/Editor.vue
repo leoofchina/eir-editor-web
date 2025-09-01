@@ -13,7 +13,7 @@
 
 <script setup>
 // 全繁中：在原 contenteditable 基礎上，加入 HTML ⇄ Tiptap JSON 轉換
-import { onMounted, ref, defineExpose } from 'vue'
+import { onMounted, ref } from 'vue'
 import { initEditor } from '@/composables/useEditor'         // 若未配 alias，改為 ../composables/useEditor
 import StarterKit from '@tiptap/starter-kit'
 import { generateJSON, generateHTML } from '@tiptap/html'    // 若未裝：npm i @tiptap/html
@@ -36,7 +36,6 @@ onMounted(() => {
 function getJSON () {
   const html = editorElement.value?.innerHTML || ''
 
-  console.log('进入到getJSON')
   try {
     const json = generateJSON(html, [StarterKit])
     // 調試：console.log('getJSON html=', html, 'json=', json)

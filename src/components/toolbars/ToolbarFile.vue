@@ -2,10 +2,12 @@
   <!-- ① 檔案主操作（雙排小圖標） -->
   <div class="toolbar-group two-rows">
     <div class="row">
-      <button class="toolbar-button" @click="$emit('new-file')" title="新建">
+      <button class="toolbar-button" @click="newFile" title="新建">
+<!--      <button class="toolbar-button" @click="$emit('new-file')" title="新建">-->
         <i class="fas fa-file"></i>
       </button>
-      <button class="toolbar-button" @click="$emit('open-file')" title="開啟">
+      <button class="toolbar-button" @click="openFile" title="開啟">
+<!--      <button class="toolbar-button" @click="$emit('open-file')" title="開啟">-->
         <i class="fas fa-folder-open"></i>
       </button>
       <button class="toolbar-button" @click="$emit('close-file')" title="關閉">
@@ -16,9 +18,6 @@
       <button class="toolbar-button" @click="$emit('open-recent')" title="最近">
         <i class="fas fa-history"></i>
       </button>
-<!--      <button class="toolbar-button" @click="$emit('save-file')" title="儲存">-->
-<!--        <i class="fas fa-save"></i>-->
-<!--      </button>-->
       <button class="toolbar-button" @click="saveFile" title="儲存">
         <i class="fas fa-save"></i>
       </button>
@@ -100,7 +99,8 @@
     'version-history','create-snapshot','restore-version','diff-version'
   ])
 
-  const { saveFile } = useFileSave(props.editorApi)
+  // const { saveFile } = useFileSave(props.editorApi)
+  const { saveFile, openFile, newFile } = useFileSave(props.editorApi)
 </script>
 
 <style scoped>
