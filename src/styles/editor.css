@@ -1,0 +1,23 @@
+.editor-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    background: url('/bg.svg') repeat;
+    overflow-y: auto;
+}
+.editor {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 800px;
+}
+.editor-content {
+    padding: 40px;
+    min-height: 600px;
+    line-height: 1.6;
+    font-size: 16px;
+    color: #374151;
+    outline: none;
+}

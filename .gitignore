@@ -1,0 +1,43 @@
+# === Node / Vue 專案常用 ===
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# === 語言/工具產物 ===
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# === 編輯器 / 系統檔 ===
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.tmp
+
+# === IDE 配置 ===
+.vscode/
+.idea/
+*.iml
+
+# === 測試/快照 ===
+coverage/
+*.lcov
+
+# === 暫存檔 / 匯出檔 ===
+*.bak
+*.tmp
+*.old
+*.zip
+
+# === 其他 ===
+# 忽略環境變數檔，僅保留範例
+.env
+.env.*.local
+!.env.example
