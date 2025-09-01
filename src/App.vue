@@ -1,17 +1,18 @@
 <template>
   <div class="editor-container">
     <MenuBar @select="onSelect"/>
-    <ToolbarSwitcher
-        :menu="menuKey"
-        :format="formats"
-        :modelFont="font" :modelSize="size" :modelHeading="heading"
-        @new="newDocument" @open="openDocument" @save="saveDocument"
-        @undo="undo" @redo="redo"
-        @set-font="setFontFamily" @set-size="setFontSize"
-        @toggle-bold="toggleBold" @toggle-italic="toggleItalic" @toggle-underline="toggleUnderline"
-        @toggle-bullet="toggleBulletList" @toggle-ordered="toggleOrderedList"
-        @insert-table="insertTable" @set-heading="setHeading"
-    />
+<!--    <ToolbarSwitcher-->
+<!--        :menu="menuKey"-->
+<!--        :format="formats"-->
+<!--        :modelFont="font" :modelSize="size" :modelHeading="heading"-->
+<!--        @new="newDocument" @open="openDocument" @save="saveDocument"-->
+<!--        @undo="undo" @redo="redo"-->
+<!--        @set-font="setFontFamily" @set-size="setFontSize"-->
+<!--        @toggle-bold="toggleBold" @toggle-italic="toggleItalic" @toggle-underline="toggleUnderline"-->
+<!--        @toggle-bullet="toggleBulletList" @toggle-ordered="toggleOrderedList"-->
+<!--        @insert-table="insertTable" @set-heading="setHeading"-->
+<!--    />-->
+    <ToolbarSwitcher :menu="menuKey" :editor-api="editorApi" />
 
     <div class="main-content">
       <Editor ref="editorRef" />
@@ -68,6 +69,17 @@ function onSelect(m){
     '幫助':'help',
   }
   menuKey.value = map[m] || 'file'
+}
+
+// const editorApi = {
+//   getJSON: () => editorRef.value?.getJSON?.() ?? null,  // ✅ 供工具欄取 JSON
+//   // 可保留 getHTML 作備援：getHTML: () => editorRef.value?.editor?.getHTML?.() ?? ''
+// }
+const editorApi = {
+  getJSON: () => editorRef.value?.getJSON?.(),
+  setJSON: (j) => editorRef.value?.setJSON?.(j),
+  // 可選備援：
+  getHTML: () => editorRef.value?.editorElement?.innerHTML ?? ''
 }
 
 // 編輯功能

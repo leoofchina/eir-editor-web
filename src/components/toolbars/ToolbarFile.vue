@@ -16,7 +16,10 @@
       <button class="toolbar-button" @click="$emit('open-recent')" title="最近">
         <i class="fas fa-history"></i>
       </button>
-      <button class="toolbar-button" @click="$emit('save-file')" title="儲存">
+<!--      <button class="toolbar-button" @click="$emit('save-file')" title="儲存">-->
+<!--        <i class="fas fa-save"></i>-->
+<!--      </button>-->
+      <button class="toolbar-button" @click="saveFile" title="儲存">
         <i class="fas fa-save"></i>
       </button>
       <button class="toolbar-button" @click="$emit('save-as')" title="另存為">
@@ -82,16 +85,22 @@
 </template>
 
 <script setup>
-defineEmits([
-  // 主操作
-  'new-file','open-file','close-file','save-file','save-as','open-recent',
-  // 匯入/匯出
-  'import-file','export-docx','export-md','export-pdf','export-html','export-image',
-  // 列印
-  'print','print-preview','page-setup',
-  // 版本/還原
-  'version-history','create-snapshot','restore-version','diff-version'
-])
+  // ✅ 保留你原本的事件宣告（其他按鈕仍可 $emit）
+  import { useFileSave } from '@/composables/useFileSave'
+
+  const props = defineProps({
+    // 父層提供 editorApi：至少需有 getHTML()
+    editorApi: { type: Object, required: true }
+  })
+
+  defineEmits([
+    'new-file','open-file','close-file','save-file','save-as','open-recent',
+    'import-file','export-docx','export-md','export-pdf','export-html','export-image',
+    'print','print-preview','page-setup',
+    'version-history','create-snapshot','restore-version','diff-version'
+  ])
+
+  const { saveFile } = useFileSave(props.editorApi)
 </script>
 
 <style scoped>
