@@ -7,8 +7,16 @@
         @open="onOpen"
     />
 
-    <input ref="openFileInput" type="file" accept=".json,.eir"
-           style="display:none" @change="onOpenFileChange">
+<!--    <input ref="openFileInput" type="file" accept=".json,.eir"-->
+<!--           style="display:none" @change="onOpenFileChange">-->
+    <!-- 支持打開 HTML / JSON -->
+    <input
+        ref="openFileInput"
+        type="file"
+        accept=".html,.htm,.json,.eir,text/html"
+        style="display:none"
+        @change="onOpenFileChange"
+    />
 
     <ToolbarSwitcher
         :menu="menuKey"
@@ -133,43 +141,106 @@ function onRun() {
 // —— 保存：把表單目前 HTML（內含輸入值）+ 本次預覽替換值 一起導出 ——
 
 // 收集表單值（回傳物件，key 以 name > id > 索引 命名）
-function collectFormValues(rootEl) {
-  const data = {}
-  const pushVal = (k, v, multi=false) => {
-    if (multi) { if (!Array.isArray(data[k])) data[k]=[]; data[k].push(v) }
-    else { data[k] = v }
-  }
-  const els = rootEl.querySelectorAll('input, textarea, select')
-  els.forEach((el, idx) => {
-    const tag = el.tagName.toLowerCase()
-    const type = (el.getAttribute('type')||'').toLowerCase()
-    const key = el.name || el.id || `${tag}_${idx}`
-
-    if (tag === 'textarea') {
-      pushVal(key, el.value)
-    } else if (tag === 'select') {
-      if (el.multiple) {
-        const vals = Array.from(el.selectedOptions).map(o=>o.value)
-        pushVal(key, vals)
-      } else {
-        pushVal(key, el.value)
-      }
-    } else if (tag === 'input') {
-      if (type === 'checkbox') {
-        if (el.checked) pushVal(key, el.value || 'on', true)
-        else if (!(key in data)) data[key] = []   // 保證鍵存在
-      } else if (type === 'radio') {
-        if (el.checked) pushVal(key, el.value || 'on')
-        else if (!(key in data)) data[key] = null
-      } else {
-        pushVal(key, el.value)
-      }
-    }
-  })
-  return data
-}
-
-// 把當前 DOM 序列化為 HTML，且把輸入值真正寫回屬性/內容，避免丟失
+// function collectFormValues(rootEl) {
+//   const data = {}
+//   const pushVal = (k, v, multi=false) => {
+//     if (multi) { if (!Array.isArray(data[k])) data[k]=[]; data[k].push(v) }
+//     else { data[k] = v }
+//   }
+//   const els = rootEl.querySelectorAll('input, textarea, select')
+//   els.forEach((el, idx) => {
+//     const tag = el.tagName.toLowerCase()
+//     const type = (el.getAttribute('type')||'').toLowerCase()
+//     const key = el.name || el.id || `${tag}_${idx}`
+//
+//     if (tag === 'textarea') {
+//       pushVal(key, el.value)
+//     } else if (tag === 'select') {
+//       if (el.multiple) {
+//         const vals = Array.from(el.selectedOptions).map(o=>o.value)
+//         pushVal(key, vals)
+//       } else {
+//         pushVal(key, el.value)
+//       }
+//     } else if (tag === 'input') {
+//       if (type === 'checkbox') {
+//         if (el.checked) pushVal(key, el.value || 'on', true)
+//         else if (!(key in data)) data[key] = []   // 保證鍵存在
+//       } else if (type === 'radio') {
+//         if (el.checked) pushVal(key, el.value || 'on')
+//         else if (!(key in data)) data[key] = null
+//       } else {
+//         pushVal(key, el.value)
+//       }
+//     }
+//   })
+//   return data
+// }
+//
+// // 把當前 DOM 序列化為 HTML，且把輸入值真正寫回屬性/內容，避免丟失
+// function serializeHTMLWithFormValues(rootEl) {
+//   const clone = rootEl.cloneNode(true)
+//
+//   const origInputs  = rootEl.querySelectorAll('input')
+//   const cloneInputs = clone.querySelectorAll('input')
+//   origInputs.forEach((el, i) => {
+//     const c = cloneInputs[i]
+//     c.setAttribute('value', el.value || '')
+//     if (el.type === 'checkbox' || el.type === 'radio') {
+//       if (el.checked) c.setAttribute('checked','')
+//       else c.removeAttribute('checked')
+//     }
+//   })
+//
+//   const origAreas  = rootEl.querySelectorAll('textarea')
+//   const cloneAreas = clone.querySelectorAll('textarea')
+//   origAreas.forEach((el, i) => { cloneAreas[i].textContent = el.value || '' })
+//
+//   const origSelects  = rootEl.querySelectorAll('select')
+//   const cloneSelects = clone.querySelectorAll('select')
+//   origSelects.forEach((el, i) => {
+//     const c = cloneSelects[i]
+//     const o1 = el.querySelectorAll('option')
+//     const o2 = c.querySelectorAll('option')
+//     o1.forEach((opt, j) => {
+//       if (opt.selected) o2[j].setAttribute('selected','')
+//       else o2[j].removeAttribute('selected')
+//     })
+//   })
+//
+//   return clone.innerHTML
+// }
+//
+// function tsFilename() {
+//   const d = new Date()
+//   const pad = n => String(n).padStart(2,'0')
+//   return `eir-form-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.json`
+// }
+//
+// function onSave() {
+//   const el = editorRef.value?.editorElement
+//   if (!el) return
+//
+//   const values = collectFormValues(el)
+//   const html   = serializeHTMLWithFormValues(el)
+//
+//   const payload = {
+//     type: 'eir-form',
+//     version: 1,
+//     timestamp: new Date().toISOString(),
+//     tokens: previewValues || {},   // 本次 {token} 的隨機替換值
+//     html,                          // 已含輸入值/選擇狀態的 HTML
+//     values                         // 便於服務端直讀或檢索
+//   }
+//
+//   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' })
+//   const a = document.createElement('a')
+//   a.href = URL.createObjectURL(blob)
+//   a.download = tsFilename()
+//   document.body.appendChild(a); a.click(); a.remove()
+//   URL.revokeObjectURL(a.href)
+// }
+// —— 序列化：把當前 DOM 的輸入值寫回屬性，避免打開後丟失 ——
 function serializeHTMLWithFormValues(rootEl) {
   const clone = rootEl.cloneNode(true)
 
@@ -203,32 +274,55 @@ function serializeHTMLWithFormValues(rootEl) {
   return clone.innerHTML
 }
 
-function tsFilename() {
-  const d = new Date()
+// —— 生成完整可單獨打開的 HTML 文檔字串 ——
+function buildHtmlDocument(bodyInnerHtml) {
+  const now = new Date()
   const pad = n => String(n).padStart(2,'0')
-  return `eir-form-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.json`
+  const time = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
+
+  return `<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EIR 表單預覽 - ${time}</title>
+<style>
+  /* 基本排版（內嵌，保證離線可用） */
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;margin:0;padding:24px;background:#fff;color:#111;}
+  .eir-document{max-width:960px;margin:0 auto;line-height:1.7;}
+  input,textarea,select{font:inherit;line-height:1.6;padding:6px 8px;border:1px solid #d1d5db;border-radius:6px;vertical-align:middle;}
+  textarea{resize:vertical;min-width:260px;}
+  .eir-radio-group,.eir-checkbox-group{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;vertical-align:middle;}
+  .eir-radio-prefix,.eir-checkbox-prefix{color:#374151;}
+  label{display:inline-flex;align-items:center;gap:4px;margin-right:8px;}
+</style>
+</head>
+<body>
+  <div class="eir-document">
+    ${bodyInnerHtml}
+  </div>
+</body>
+</html>`
 }
 
+// —— 下載檔名（.html） ——
+function tsFilenameHtml() {
+  const d = new Date(), p = n => String(n).padStart(2,'0')
+  return `eir-form-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}.html`
+}
+
+// —— 保存為可直接打開的 HTML ——
 function onSave() {
   const el = editorRef.value?.editorElement
   if (!el) return
+  // 取當前內容（已被 Run 替換過 {token}），並把輸入值寫回屬性
+  const inner = serializeHTMLWithFormValues(el)
+  const doc = buildHtmlDocument(inner)
 
-  const values = collectFormValues(el)
-  const html   = serializeHTMLWithFormValues(el)
-
-  const payload = {
-    type: 'eir-form',
-    version: 1,
-    timestamp: new Date().toISOString(),
-    tokens: previewValues || {},   // 本次 {token} 的隨機替換值
-    html,                          // 已含輸入值/選擇狀態的 HTML
-    values                         // 便於服務端直讀或檢索
-  }
-
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' })
+  const blob = new Blob([doc], { type: 'text/html' })
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
-  a.download = tsFilename()
+  a.download = tsFilenameHtml()
   document.body.appendChild(a); a.click(); a.remove()
   URL.revokeObjectURL(a.href)
 }
@@ -239,6 +333,39 @@ const openFileInput = ref(null)
 function onOpen() {
   openFileInput.value && openFileInput.value.click()
 }
+//
+// function onOpenFileChange(e) {
+//   const file = e.target.files?.[0]
+//   if (!file) return
+//   const reader = new FileReader()
+//   reader.onload = (ev) => {
+//     try {
+//       const data = JSON.parse(String(ev.target.result||'{}'))
+//       const el = editorRef.value?.editorElement
+//       if (!el) return
+//       if (data && typeof data.html === 'string') {
+//         el.innerHTML = data.html                   // 直接恢復完整 HTML（含值）
+//       }
+//       previewValues = data.tokens || {}            // 保留本次預覽用到的替換值
+//       isPreview.value = true
+//     } catch (err) {
+//       alert('檔案格式錯誤或已損壞')
+//     } finally {
+//       e.target.value = ''                          // 重置 input 以便下次選同一檔
+//     }
+//   }
+//   reader.readAsText(file)
+// }
+// 解析 HTML：拿 .eir-document 內容；若無則取 <body>；再不行用原字串
+function extractHtmlBody(htmlText) {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(htmlText, 'text/html')
+  return (
+      doc.querySelector('.eir-document')?.innerHTML ??
+      doc.body?.innerHTML ??
+      htmlText
+  )
+}
 
 function onOpenFileChange(e) {
   const file = e.target.files?.[0]
@@ -246,18 +373,34 @@ function onOpenFileChange(e) {
   const reader = new FileReader()
   reader.onload = (ev) => {
     try {
-      const data = JSON.parse(String(ev.target.result||'{}'))
-      const el = editorRef.value?.editorElement
-      if (!el) return
-      if (data && typeof data.html === 'string') {
-        el.innerHTML = data.html                   // 直接恢復完整 HTML（含值）
+      const txt = String(ev.target?.result || '')
+
+      // 嘗試 JSON（老格式）
+      try {
+        const data = JSON.parse(txt)
+        const el = editorRef.value?.editorElement
+        if (el && typeof data.html === 'string') {
+          el.innerHTML = data.html
+          previewValues = data.tokens || {}
+          isPreview.value = true
+          return
+        }
+        // 若不是上述 JSON 結構，落到 HTML 分支
+      } catch (_) {
+        // 非 JSON，當作 HTML
       }
-      previewValues = data.tokens || {}            // 保留本次預覽用到的替換值
-      isPreview.value = true
-    } catch (err) {
+
+      // HTML：提取正文並恢復
+      const inner = extractHtmlBody(txt)
+      const el = editorRef.value?.editorElement
+      if (el) {
+        el.innerHTML = inner
+        isPreview.value = true
+      }
+    } catch {
       alert('檔案格式錯誤或已損壞')
     } finally {
-      e.target.value = ''                          // 重置 input 以便下次選同一檔
+      e.target.value = '' // 重置以便下次可選同一檔
     }
   }
   reader.readAsText(file)
