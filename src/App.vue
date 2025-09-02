@@ -22,15 +22,15 @@
 </template>
 
 <script setup>
-import MenuBar from './components/MenuBar.vue'
-import Editor from './components/Editor.vue'
-import StatusBar from './components/StatusBar.vue'
-import ComponentSidebar from './components/ComponentSidebar.vue'
+import MenuBar from '@/components/MenuBar.vue'
+import Editor from '@/components/Editor.vue'
+import StatusBar from '@/components/StatusBar.vue'
+import ComponentSidebar from '@/components/ComponentSidebar.vue'
 
 import { ref, onMounted } from 'vue'
-import { initEditor } from './composables/useEditor'
-import useComponents from './composables/useComponents'
-import ToolbarSwitcher from "./components/ToolbarSwitcher.vue";
+import { initEditor } from '@/composables/useEditor'
+import useComponents from '@/composables/useComponents'
+import ToolbarSwitcher from "@/components/ToolbarSwitcher.vue";
 
 const editorRef = ref(null)
 let formats = ref({})

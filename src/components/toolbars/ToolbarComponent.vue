@@ -1,16 +1,30 @@
 <template>
   <!-- 1️⃣ 输入类 -->
   <div class="toolbar-group large">
-    <button class="toolbar-button large" @click="$emit('insert-input')">
+    <button class="toolbar-button large"
+            @mousedown.prevent
+            @click="onInsertInput">
       <i class="fas fa-i-cursor big-icon"></i><span>輸入框</span>
     </button>
-    <button class="toolbar-button large" @click="$emit('insert-textarea')">
+
+    <!-- ✅ 多行輸入 -->
+    <button class="toolbar-button large"
+            @mousedown.prevent
+            @click="onInsertTextarea">
       <i class="fas fa-align-left big-icon"></i><span>多行輸入</span>
     </button>
-    <button class="toolbar-button large" @click="$emit('insert-password')">
+
+    <!-- ✅ 密碼輸入 -->
+    <button class="toolbar-button large"
+            @mousedown.prevent
+            @click="onInsertPassword">
       <i class="fas fa-key big-icon"></i><span>密碼輸入</span>
     </button>
-    <button class="toolbar-button large" @click="$emit('insert-number')">
+
+    <!-- ✅ 數字輸入 -->
+    <button class="toolbar-button large"
+            @mousedown.prevent
+            @click="onInsertNumber">
       <i class="fas fa-sort-numeric-up big-icon"></i><span>數字輸入</span>
     </button>
   </div>
@@ -26,10 +40,17 @@
     <button class="toolbar-button large" @click="$emit('insert-select')">
       <i class="fas fa-caret-square-down big-icon"></i><span>選擇框</span>
     </button>
-    <button class="toolbar-button large" @click="$emit('insert-radio-group')">
+
+    <!--  單選組 -->
+    <button class="toolbar-button large"
+            @mousedown.prevent
+            @click="onInsertRadioGroup">
       <i class="fas fa-dot-circle big-icon"></i><span>單選組</span>
     </button>
-    <button class="toolbar-button large" @click="$emit('insert-checkbox-group')">
+
+    <button class="toolbar-button large"
+            @mousedown.prevent
+            @click="onInsertCheckboxGroup">
       <i class="fas fa-check-square big-icon"></i><span>複選組</span>
     </button>
     <button class="toolbar-button large" @click="$emit('insert-switch')">
@@ -71,6 +92,155 @@ defineEmits([
   'insert-date','insert-date-range','insert-time','insert-time-range',
   'insert-upload','insert-drag-upload'
 ])
+
+const props = defineProps({
+  editorApi: { type: Object, required: false }
+})
+
+// 通用插入 HTML 片段
+function insertHTML(html) {
+  props.editorApi && props.editorApi.focusEditor && props.editorApi.focusEditor()
+  if (props.editorApi && props.editorApi.execCommand) {
+    props.editorApi.execCommand('insertHTML', html)
+  } else {
+    // 後備：無 editorApi 時，仍可向上冒泡交由父層處理
+    emit('insert-input', html)
+  }
+}
+
+// 插入單行輸入框；尾部加 &nbsp; 方便游標跳出
+function onInsertInput() {
+  const html = `<input type="text" class="eir-input"
+                 placeholder="請輸入"
+                 style="min-width:140px;height:28px;padding:0 8px;vertical-align:middle;" />&nbsp;`
+  insertHTML(html)
+}
+
+// 插入多行輸入；結尾 &nbsp; 方便游標跳出
+function onInsertTextarea() {
+  const html = `<textarea class="eir-textarea"
+                 placeholder="請輸入"
+                 rows="3"
+                 style="min-width:260px;max-width:100%;height:auto;line-height:1.4;padding:6px 8px;vertical-align:middle;resize:vertical;"></textarea>&nbsp;`
+  insertHTML(html)
+}
+
+// 插入密碼輸入
+function onInsertPassword() {
+  const html = `<input type="password" class="eir-input"
+                 placeholder="請輸入密碼"
+                 style="min-width:160px;height:28px;padding:0 8px;vertical-align:middle;" />&nbsp;`
+  insertHTML(html)
+}
+
+// 插入數字輸入（右對齊）
+function onInsertNumber() {
+  const html = `<input type="number" class="eir-input"
+                 placeholder="0"
+                 style="min-width:120px;height:28px;padding:0 8px;vertical-align:middle;text-align:right;" />&nbsp;`
+  insertHTML(html)
+}
+
+// HTML 轉義，避免插入惡意內容
+function escapeHtml(s) {
+  return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+}
+
+// 繁中註解：生成簡易唯一 ID，避免 name/id 衝突
+function genId(prefix) {
+  return `${prefix}-${Date.now().toString(36)}-${Math.floor(Math.random()*1e4).toString(36)}`
+}
+
+// 插入單選組（可混排 + 可加前綴標籤）
+function onInsertRadioGroup() {
+  // ① 前綴標籤（可留空，例：性別）
+  const label = (window.prompt('請輸入前綴標籤（例如：性別，可留空）', '性別') || '').trim()
+  // ② 組名（作為 name，可留空）
+  const groupNameInput = window.prompt('請輸入組名（用於 name，可留空）', 'gender') || 'radio'
+  // ③ 選項
+  const optsStr = window.prompt('請輸入選項，以「|」分隔（例如：男|女|不詳）', '男|女')
+  if (!optsStr) return
+  const options = optsStr.split('|').map(s => s.trim()).filter(Boolean)
+  if (!options.length) return
+  // ④ 預設值（可留空，需與某個選項文字相同）
+  const defVal = (window.prompt('（可選）預設值：填寫其中一個選項文字', '') || '').trim()
+
+  const gid = genId('rg')
+  const nameAttr = `${groupNameInput}_${gid}`
+
+  // ✅ 用陣列組字串，避免插入多餘換行，確保與文字混排
+  const parts = []
+  parts.push(
+      `<span class="eir-radio-group" contenteditable="false" data-name="${escapeHtml(groupNameInput)}"`,
+      ` style="display:inline-flex;align-items:center;gap:8px;vertical-align:middle;white-space:nowrap;">`
+  )
+  if (label) {
+    parts.push(`<span class="eir-radio-prefix">${escapeHtml(label)}：</span>`)
+  }
+
+  options.forEach(text => {
+    const checked = defVal && defVal === text ? ' checked' : ''
+    const inputId = genId('r')
+    parts.push(
+        `<label class="eir-radio" for="${inputId}"`,
+        ` style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;">`,
+        `<input id="${inputId}" type="radio" name="${escapeHtml(nameAttr)}" value="${escapeHtml(text)}"${checked}/>`,
+        `<span>${escapeHtml(text)}</span>`,
+        `</label>`
+    )
+  })
+
+  parts.push(`</span>&nbsp;`) // &nbsp; 便於游標跳出
+  insertHTML(parts.join(''))
+}
+
+// 插入複選組（可混排 + 可加前綴標籤）
+function onInsertCheckboxGroup() {
+  // 前綴標籤（可留空）
+  const label = (window.prompt('請輸入前綴標籤（可留空）', '選項') || '').trim()
+  // 組名（用於 name，可留空）
+  const groupNameInput = window.prompt('請輸入組名（用於 name，可留空）', 'options') || 'checkbox'
+  // 選項
+  const optsStr = window.prompt('請輸入選項，以「|」分隔', 'A|B|C')
+  if (!optsStr) return
+  const options = optsStr.split('|').map(s => s.trim()).filter(Boolean)
+  if (!options.length) return
+  // 多個預設值（用 | 分隔）
+  const defStr = (window.prompt('（可選）預設勾選項目：以「|」分隔，需與選項文字一致', '') || '').trim()
+  const defaults = new Set(defStr ? defStr.split('|').map(s => s.trim()) : [])
+
+  const gid = genId('cg')
+  const nameAttr = `${groupNameInput}_${gid}[]`  // [] 方便語義化提交
+
+  const parts = []
+  parts.push(
+      `<span class="eir-checkbox-group" contenteditable="false" data-name="${escapeHtml(groupNameInput)}"`,
+      ` style="display:inline-flex;align-items:center;gap:8px;vertical-align:middle;white-space:nowrap;">`
+  )
+  if (label) {
+    parts.push(`<span class="eir-checkbox-prefix">${escapeHtml(label)}：</span>`)
+  }
+
+  options.forEach(text => {
+    const checked = defaults.has(text) ? ' checked' : ''
+    const inputId = genId('c')
+    parts.push(
+        `<label class="eir-checkbox" for="${inputId}"`,
+        ` style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;">`,
+        `<input id="${inputId}" type="checkbox" name="${escapeHtml(nameAttr)}" value="${escapeHtml(text)}"${checked}/>`,
+        `<span>${escapeHtml(text)}</span>`,
+        `</label>`
+    )
+  })
+
+  parts.push(`</span>&nbsp;`) // 便於游標跳出
+  insertHTML(parts.join(''))
+}
 </script>
 
 <style scoped>
