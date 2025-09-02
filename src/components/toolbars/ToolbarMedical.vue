@@ -1,26 +1,95 @@
 <template>
-  <!-- ① 患者主信息（双排小图标） -->
+  <!-- ① 患者主資訊（雙排小圖示） -->
   <div class="toolbar-group two-rows">
     <div class="row">
-      <button class="toolbar-button" title="姓名" @click="$emit('edit-name')"><i class="fas fa-user"></i></button>
-      <button class="toolbar-button" title="性别" @click="$emit('edit-gender')"><i class="fas fa-venus-mars"></i></button>
-      <button class="toolbar-button" title="年龄" @click="$emit('edit-age')"><i class="fas fa-hourglass-half"></i></button>
-      <button class="toolbar-button" title="出生日期" @click="$emit('edit-birthday')"><i class="fas fa-birthday-cake"></i></button>
-      <button class="toolbar-button" title="科室" @click="$emit('edit-dept')"><i class="fas fa-hospital"></i></button>
-      <button class="toolbar-button" title="病区" @click="$emit('edit-ward')"><i class="fas fa-building"></i></button>
-      <button class="toolbar-button" title="床号" @click="$emit('edit-bedno')"><i class="fas fa-procedures"></i></button>
+      <!--  姓名  -->
+      <button class="toolbar-button" title="姓名"
+              @mousedown.prevent
+              @click="onInsertPatientName">
+        <i class="fas fa-user"></i>
+      </button>
+
+      <!--  性別  -->
+      <button class="toolbar-button" title="性別"
+              @mousedown.prevent
+              @click="onInsertPatientGender">
+        <i class="fas fa-venus-mars"></i>
+      </button>
+
+      <!--  年齡  -->
+      <button class="toolbar-button" title="年齡"
+              @mousedown.prevent
+              @click="onInsertPatientGender">
+        <i class="fas fa-hourglass-half"></i>
+      </button>
+
+      <!--  出生日期  -->
+      <button class="toolbar-button" title="出生日期"
+              @mousedown.prevent
+              @click="onInsertPatientAge">
+        <i class="fas fa-birthday-cake"></i>
+      </button>
+
+      <!--  科室  -->
+      <button class="toolbar-button" title="科室"
+              @mousedown.prevent
+              @click="onInsertPatientDept">
+        <i class="fas fa-hospital"></i>
+      </button>
+
+      <!--  病區  -->
+      <button class="toolbar-button" title="病區"
+              @mousedown.prevent
+              @click="onInsertPatientWard">
+        <i class="fas fa-building"></i>
+      </button>
+
+      <!--  床號  -->
+      <button class="toolbar-button" title="床號" @click="$emit('edit-bedno')"><i class="fas fa-procedures"></i></button>
     </div>
     <div class="row">
-      <button class="toolbar-button" title="住院号" @click="$emit('edit-inpatient-no')"><i class="fas fa-id-card"></i></button>
-      <button class="toolbar-button" title="门诊号" @click="$emit('edit-outpatient-no')"><i class="fas fa-id-badge"></i></button>
-      <button class="toolbar-button" title="过敏史" @click="$emit('edit-allergy')"><i class="fas fa-allergies"></i></button>
-      <button class="toolbar-button" title="血型" @click="$emit('edit-blood-type')"><i class="fas fa-tint"></i></button>
-      <button class="toolbar-button" title="联系方式" @click="$emit('edit-phone')"><i class="fas fa-phone"></i></button>
-      <button class="toolbar-button" title="紧急联系人" @click="$emit('edit-emergency-contact')"><i class="fas fa-address-book"></i></button>
+      <!--  住院號  -->
+      <button class="toolbar-button" title="住院號"
+              @mousedown.prevent @click="onInsertPatientInpatientNo">
+        <i class="fas fa-id-card"></i>
+      </button>
+
+      <!--  門診號  -->
+      <button class="toolbar-button" title="門診號"
+              @mousedown.prevent @click="onInsertPatientOutpatientNo">
+        <i class="fas fa-id-badge"></i>
+      </button>
+
+      <!--  過敏史  -->
+      <button class="toolbar-button" title="過敏史"
+              @mousedown.prevent
+              @click="onInsertPatientAllergy">
+        <i class="fas fa-allergies"></i>
+      </button>
+
+      <!--  血型  -->
+      <button class="toolbar-button" title="血型"
+              @mousedown.prevent
+              @click="onInsertPatientBloodType">
+        <i class="fas fa-tint"></i></button>
+
+      <!--  聯絡方式  -->
+      <button class="toolbar-button" title="聯絡方式"
+              @mousedown.prevent
+              @click="onInsertPatientPhone">
+        <i class="fas fa-phone"></i>
+      </button>
+
+      <!--  緊急聯絡人  -->
+      <button class="toolbar-button" title="緊急聯絡人"
+              @mousedown.prevent
+              @click="onInsertPatientEmergencyContact">
+        <i class="fas fa-address-book"></i>
+      </button>
     </div>
   </div>
 
-  <!-- ② 片语模板（大图标） -->
+  <!-- ② 片語模板（大圖示） -->
   <div class="toolbar-group large">
     <button class="toolbar-button large" @click="$emit('open-common-phrases')">
       <i class="fas fa-sticky-note big-icon"></i><span>常用片語</span>
@@ -29,23 +98,23 @@
       <i class="fas fa-folder-tree big-icon"></i><span>科室模板</span>
     </button>
     <button class="toolbar-button large" @click="$emit('open-custom-templates')">
-      <i class="fas fa-layer-group big-icon"></i><span>自定義</span>
+      <i class="fas fa-layer-group big-icon"></i><span>自訂</span>
     </button>
   </div>
 
-  <!-- ③ 病历结构化录入（双排小图标） -->
+  <!-- ③ 病歷結構化錄入（雙排小圖示） -->
   <div class="toolbar-group two-rows">
     <div class="row">
-      <button class="toolbar-button" title="主诉" @click="$emit('input-chief-complaint')">
+      <button class="toolbar-button" title="主訴" @click="$emit('input-chief-complaint')">
         <i class="fas fa-comment-medical"></i>
       </button>
-      <button class="toolbar-button" title="现病史" @click="$emit('input-hpi')">
+      <button class="toolbar-button" title="現病史" @click="$emit('input-hpi')">
         <i class="fas fa-file-medical"></i>
       </button>
       <button class="toolbar-button" title="既往史" @click="$emit('input-pmh')">
         <i class="fas fa-history"></i>
       </button>
-      <button class="toolbar-button" title="个人史" @click="$emit('input-ps')">
+      <button class="toolbar-button" title="個人史" @click="$emit('input-ps')">
         <i class="fas fa-user"></i>
       </button>
     </div>
@@ -53,19 +122,19 @@
       <button class="toolbar-button" title="家族史" @click="$emit('input-fh')">
         <i class="fas fa-users"></i>
       </button>
-      <button class="toolbar-button run dev" title="体格检查" @click="$emit('input-pe')">
+      <button class="toolbar-button run dev" title="體格檢查" @click="$emit('input-pe')">
         <i class="fas fa-stethoscope"></i>
       </button>
-      <button class="toolbar-button" title="辅助检查" @click="$emit('input-aux')">
+      <button class="toolbar-button" title="輔助檢查" @click="$emit('input-aux')">
         <i class="fas fa-vials"></i>
       </button>
-      <button class="toolbar-button" title="诊断" @click="$emit('input-diagnosis')">
+      <button class="toolbar-button" title="診斷" @click="$emit('input-diagnosis')">
         <i class="fas fa-notes-medical"></i>
       </button>
     </div>
   </div>
 
-  <!-- ④ 检查/检验结果（大图标） -->
+  <!-- ④ 檢查/檢驗結果（大圖示） -->
   <div class="toolbar-group large">
     <button class="toolbar-button large" @click="$emit('open-lab')">
       <i class="fas fa-flask big-icon"></i><span>化驗單</span>
@@ -78,7 +147,7 @@
     </button>
   </div>
 
-  <!-- ⑤ 药物/诊疗关联（大图标） -->
+  <!-- ⑤ 藥物/診療關聯（大圖示） -->
   <div class="toolbar-group large">
     <button class="toolbar-button large" @click="$emit('open-common-drugs')">
       <i class="fas fa-pills big-icon"></i><span>常用藥物</span>
@@ -93,23 +162,84 @@
 </template>
 
 <script setup>
-defineEmits([
-  // 主信息
+const emit = defineEmits([
+  // 主資訊
   'edit-name','edit-gender','edit-age','edit-birthday','edit-dept','edit-ward','edit-bedno',
   'edit-inpatient-no','edit-outpatient-no','edit-allergy','edit-blood-type','edit-phone','edit-emergency-contact',
-  // 片语模板
+  // 片語模板
   'open-common-phrases','open-dept-templates','open-custom-templates',
-  // 结构化录入
+  // 結構化錄入
   'input-chief-complaint','input-hpi','input-pmh','input-ps','input-fh','input-pe','input-aux','input-diagnosis',
-  // 结果
+  // 結果
   'open-lab','open-imaging','open-pathology',
-  // 药物/诊疗
+  // 藥物/診療
   'open-common-drugs','open-care-path','open-rx-templates'
 ])
+
+const props = defineProps({
+  editorApi: { type: Object, required: false }
+})
+
+function insertToken(token) {
+  // 保險聚焦，避免因點擊工具列造成選區丟失
+  props.editorApi && props.editorApi.focusEditor && props.editorApi.focusEditor()
+  if (props.editorApi && props.editorApi.execCommand) {
+    props.editorApi.execCommand('insertHTML', token)
+  } else {
+    // 後備：交由上層處理（如需）
+    emit('edit-insert', token)
+  }
+}
+
+// 姓名、性別
+function onInsertPatientName()                {
+  insertToken('{patientName}')
+}
+function onInsertPatientGender()              {
+  insertToken('{patientGender}')
+}
+
+// 年齡、生日、科室、病區
+function onInsertPatientAge()                 {
+  insertToken('{patientAge}')
+}
+function onInsertPatientBirthday()            {
+  insertToken('{patientBirthday}')
+}
+function onInsertPatientDept()                {
+  insertToken('{patientDept}')
+}
+function onInsertPatientWard()                {
+  insertToken('{patientWard}')
+}
+
+// 檔號、住院號、門診號
+function onInsertPatientCaseNo()              {
+  insertToken('{patientCaseNo}') }
+function onInsertPatientInpatientNo()         {
+  insertToken('{patientInpatientNo}')
+}
+function onInsertPatientOutpatientNo()        {
+  insertToken('{patientOutpatientNo}')
+}
+
+// 過敏史、血型、聯絡方式、緊急聯絡人
+function onInsertPatientAllergy()             {
+  insertToken('{patientAllergy}')
+}
+function onInsertPatientBloodType()           {
+  insertToken('{patientBloodType}')
+}
+function onInsertPatientPhone()               {
+  insertToken('{patientPhone}')
+}
+function onInsertPatientEmergencyContact()    {
+  insertToken('{patientEmergencyContact}')
+}
 </script>
 
 <style scoped>
-/* 组布局与分隔线 */
+/* 群組佈局與分隔線 */
 .toolbar-group{
   display:flex;
   align-items:center;
@@ -132,7 +262,7 @@ defineEmits([
   gap:4px;
 }
 
-/* 基础按钮/选择器尺寸（统一缩小） */
+/* 基礎按鈕/選擇器尺寸（統一縮小） */
 .toolbar-button{
   width:32px;
   height:32px;
@@ -168,7 +298,7 @@ defineEmits([
   background:#fff;
 }
 
-/* 第五/六组大按钮 */
+/* 第五/六組大按鈕 */
 .toolbar-group.large .toolbar-button.large{
   width:80px;
   height:80px;
@@ -182,7 +312,7 @@ defineEmits([
   margin-bottom:4px;
 }
 
-/* 标题选择（卡片） */
+/* 標題選擇（卡片） */
 .heading-box{
   position:relative;
   display:inline-block;
@@ -262,14 +392,14 @@ defineEmits([
   box-sizing:border-box;
 }
 
-/* —— 有序列表：主按钮 + 窄箭头（整体控件） —— */
+/* —— 有序列表：主按鈕 + 窄箭頭（整體控制項） —— */
 .olist-wrap{
   position:relative;
   display:inline-flex;
   align-items:center;
   border:1px solid #e5e5e5;
   border-radius:6px;
-  overflow:visible; /* 关键：允许下拉溢出 */
+  overflow:visible; /* 關鍵：允許下拉溢出 */
   background:#fff;
 }
 
@@ -324,7 +454,7 @@ defineEmits([
   gap:8px;
 }
 
-/* 复用 heading-card 尺寸 */
+/* 複用 heading-card 尺寸 */
 .olist-grid .heading-card{
   width:96px;
   height:64px;
@@ -357,6 +487,6 @@ defineEmits([
   box-shadow:0 0 0 3px rgba(59,130,246,.15);
 }
 
-/* 对齐图标一排的按钮也用统一尺寸（已继承 .toolbar-button） */
+/* 對齊圖示一排的按鈕也用統一尺寸（已繼承 .toolbar-button） */
 
 </style>
