@@ -333,29 +333,7 @@ const openFileInput = ref(null)
 function onOpen() {
   openFileInput.value && openFileInput.value.click()
 }
-//
-// function onOpenFileChange(e) {
-//   const file = e.target.files?.[0]
-//   if (!file) return
-//   const reader = new FileReader()
-//   reader.onload = (ev) => {
-//     try {
-//       const data = JSON.parse(String(ev.target.result||'{}'))
-//       const el = editorRef.value?.editorElement
-//       if (!el) return
-//       if (data && typeof data.html === 'string') {
-//         el.innerHTML = data.html                   // 直接恢復完整 HTML（含值）
-//       }
-//       previewValues = data.tokens || {}            // 保留本次預覽用到的替換值
-//       isPreview.value = true
-//     } catch (err) {
-//       alert('檔案格式錯誤或已損壞')
-//     } finally {
-//       e.target.value = ''                          // 重置 input 以便下次選同一檔
-//     }
-//   }
-//   reader.readAsText(file)
-// }
+
 // 解析 HTML：拿 .eir-document 內容；若無則取 <body>；再不行用原字串
 function extractHtmlBody(htmlText) {
   const parser = new DOMParser()
